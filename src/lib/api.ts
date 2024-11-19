@@ -1,3 +1,5 @@
+import { toast } from "@/hooks/use-toast";
+
 const API_BASE = "https://api.quran.com/api/v4";
 
 export interface Surah {
