@@ -34,12 +34,15 @@ export const AudioPlayer = ({
       if (isPlaying) {
         audioRef.current.pause();
       } else {
+        console.log("Attempting to play audio:", audioUrl);
         audioRef.current.play().catch((error) => {
+          console.error("Audio playback error:", error);
           toast({
             title: "Error",
             description: "Failed to play audio. Please try again.",
             variant: "destructive",
           });
+          setIsPlaying(false);
         });
       }
       setIsPlaying(!isPlaying);
@@ -62,12 +65,9 @@ export const AudioPlayer = ({
 
   useEffect(() => {
     if (audioRef.current) {
+      console.log("Setting new audio source:", audioUrl);
       audioRef.current.src = audioUrl || "";
-      if (isPlaying) {
-        audioRef.current.play().catch(() => {
-          setIsPlaying(false);
-        });
-      }
+      setIsPlaying(false);
     }
   }, [audioUrl]);
 

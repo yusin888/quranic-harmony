@@ -43,7 +43,7 @@ export const fetchSurah = async (id: number) => {
     const [surahResponse, versesResponse] = await Promise.all([
       fetch(`${API_BASE}/chapters/${id}`),
       fetch(
-        `${API_BASE}/verses/by_chapter/${id}?translations=131&fields=text_uthmani,audio_url&word_fields=text_uthmani&word_translations=131&audio=1&per_page=300`
+        `${API_BASE}/verses/by_chapter/${id}?translations=131&fields=text_uthmani&word_fields=text_uthmani&word_translations=131&audio=1&per_page=300`
       ),
     ]);
 
@@ -54,9 +54,17 @@ export const fetchSurah = async (id: number) => {
     const surahData = await surahResponse.json();
     const versesData = await versesResponse.json();
 
+    // Transform the audio URL to ensure it's complete
+    const verses = versesData.verses.map((verse: any) => ({
+      ...verse,
+      audio: {
+        url: verse.audio?.url ? `https://verses.quran.com/${verse.audio.url}` : null,
+      },
+    }));
+
     return {
       surah: surahData.chapter,
-      verses: versesData.verses,
+      verses,
     };
   } catch (error) {
     toast({
