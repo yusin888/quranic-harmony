@@ -28,6 +28,9 @@ const Surah = () => {
 
   if (!data) return null;
 
+  const currentVerseData = data.verses[currentVerse - 1];
+  const audioUrl = currentVerseData?.audio?.url;
+
   return (
     <div className="container max-w-4xl py-8 pb-32 min-h-screen geometric-pattern">
       <Button
@@ -59,7 +62,9 @@ const Surah = () => {
       </div>
 
       <AudioPlayer
+        audioUrl={audioUrl}
         totalVerses={data.surah.verses_count}
+        currentVerse={currentVerse}
         onVerseChange={setCurrentVerse}
       />
     </div>

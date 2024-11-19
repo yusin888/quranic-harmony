@@ -1,5 +1,3 @@
-import { toast } from "@/components/ui/use-toast";
-
 const API_BASE = "https://api.quran.com/api/v4";
 
 export interface Surah {
@@ -14,6 +12,9 @@ export interface Verse {
   id: number;
   verse_key: string;
   text_uthmani: string;
+  audio: {
+    url: string;
+  };
   translations: Array<{
     text: string;
   }>;
@@ -40,7 +41,7 @@ export const fetchSurah = async (id: number) => {
     const [surahResponse, versesResponse] = await Promise.all([
       fetch(`${API_BASE}/chapters/${id}`),
       fetch(
-        `${API_BASE}/verses/by_chapter/${id}?translations=131&fields=text_uthmani&per_page=300`
+        `${API_BASE}/verses/by_chapter/${id}?translations=131&fields=text_uthmani,audio_url&word_fields=text_uthmani&word_translations=131&audio=1&per_page=300`
       ),
     ]);
 

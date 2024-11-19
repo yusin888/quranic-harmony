@@ -2,28 +2,45 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Play, Pause, SkipForward, SkipBack } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
 
 interface AudioPlayerProps {
   audioUrl?: string;
   onVerseChange?: (verseNumber: number) => void;
   totalVerses: number;
+  currentVerse: number;
 }
 
 export const AudioPlayer = ({
   audioUrl,
   onVerseChange,
   totalVerses,
+  currentVerse,
 }: AudioPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentVerse, setCurrentVerse] = useState(1);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const togglePlayPause = () => {
+    if (!audioUrl) {
+      toast({
+        title: "No audio available",
+        description: "Please select a verse to play audio.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (audioRef.current) {
       if (isPlaying) {
         audioRef.current.pause();
       } else {
-        audioRef.current.play();
+        audioRef.current.play().catch((error) => {
+          toast({
+            title: "Error",
+            description: "Failed to play audio. Please try again.",
+            variant: "destructive",
+          });
+        });
       }
       setIsPlaying(!isPlaying);
     }
@@ -32,7 +49,6 @@ export const AudioPlayer = ({
   const handlePrevVerse = () => {
     if (currentVerse > 1) {
       const newVerse = currentVerse - 1;
-      setCurrentVerse(newVerse);
       onVerseChange?.(newVerse);
     }
   };
@@ -40,7 +56,6 @@ export const AudioPlayer = ({
   const handleNextVerse = () => {
     if (currentVerse < totalVerses) {
       const newVerse = currentVerse + 1;
-      setCurrentVerse(newVerse);
       onVerseChange?.(newVerse);
     }
   };
@@ -48,8 +63,26 @@ export const AudioPlayer = ({
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.src = audioUrl || "";
+      if (isPlaying) {
+        audioRef.current.play().catch(() => {
+          setIsPlaying(false);
+        });
+      }
     }
   }, [audioUrl]);
+
+  useEffect(() => {
+    const handleEnded = () => {
+      setIsPlaying(false);
+      handleNextVerse();
+    };
+
+    const audio = audioRef.current;
+    if (audio) {
+      audio.addEventListener("ended", handleEnded);
+      return () => audio.removeEventListener("ended", handleEnded);
+    }
+  }, [currentVerse, totalVerses]);
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg p-4">
@@ -98,7 +131,6 @@ export const AudioPlayer = ({
             step={1}
             className="flex-1"
             onValueChange={(value) => {
-              setCurrentVerse(value[0]);
               onVerseChange?.(value[0]);
             }}
           />
