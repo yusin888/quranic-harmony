@@ -1,4 +1,5 @@
 import { Verse } from "@/lib/api";
+import { RecitationChecker } from "./RecitationChecker";
 
 interface VerseRowProps {
   verse: Verse;
@@ -21,6 +22,7 @@ export const VerseRow = ({ verse, isHighlighted }: VerseRowProps) => {
           <p className="text-gray-700 leading-relaxed">
             {verse.translations[0]?.text}
           </p>
+          <RecitationChecker originalText={verse.text_uthmani} />
         </div>
       </div>
     </div>
